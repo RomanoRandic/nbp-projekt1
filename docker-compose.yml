@@ -1,0 +1,25 @@
+name: nbp-projekt1
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myPwd
+      POSTGRES_DB: moja_baza
+    ports:
+      # Only reachable from this computer. Change the port with PG_PORT in .env.
+      - "127.0.0.1:${PG_PORT:-55432}:5432"
+    # Parallel HNSW and IVFFlat builds keep their graph in /dev/shm, which is only
+    # 64 MB in Docker by default, too little for 40 000 rows.
+    shm_size: 2g
+    command: ["postgres", "-c", "shared_buffers=${PG_SHARED_BUFFERS:-1GB}"]
+    volumes:
+      - pgdata:/var/lib/postgresql
+      # Synonym file for the rr55208 text search configuration (task 2).
+      - ./baza/rr55208syn.syn:/usr/share/postgresql/18/tsearch_data/rr55208syn.syn:ro
+      # Dump and setup scripts, read inside the container.
+      - ./baza:/baza:ro
+
+volumes:
+  pgdata:

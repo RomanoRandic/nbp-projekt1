@@ -1,0 +1,4 @@
+baza/*.dump
+.env
+__pycache__/
+*.pyc
